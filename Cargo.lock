@@ -325,7 +325,7 @@ dependencies = [
 [[package]]
 name = "rdbm"
 version = "0.1.0"
-source = "git+https://github.com/scumbagdog/rdbm?branch=master#f3ad9c3b5dfad55002fec0e691a300d372cfc4ce"
+source = "git+https://github.com/scumbagdog/rdbm?branch=master#dc1bb4d3a30299dc2b08b43b6cdab31737b66e60"
 dependencies = [
  "num",
 ]
@@ -386,7 +386,7 @@ dependencies = [
 [[package]]
 name = "udbm-rs"
 version = "0.1.0"
-source = "git+https://github.com/ScumbagDog/udbm-rs?branch=master#b1979098b6b4b7950eac1794cbb931ceadb694a4"
+source = "git+https://github.com/ScumbagDog/udbm-rs?branch=master#8a2b9b7920dcb25e4e80ca99735cb4dd2c8a5df3"
 dependencies = [
  "bindgen",
  "cc",

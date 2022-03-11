@@ -7,13 +7,14 @@ use num::Zero;
 use crate::rdbm::DBM as RDBM;
 use udbm::DBM as UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
 
-trait DBM {
+trait DBM<T> {
     fn init(dim: usize) -> Self;
     fn zero(dim: usize) -> Self;
-    fn relation(rhs_dbm: &Self, lhs_dbm: &Self) -> bool;
+    fn is_included_in(rhs_dbm: &Self, lhs_dbm: &Self) -> bool;
+    fn is_satisfied(dbm: &Self, i: usize, j: usize, val: T);
 }
 
-impl DBM for UDBM {
+impl DBM<i32> for UDBM {
     fn init(dim: usize) -> UDBM {
         return udbm::init(dim);
     }
@@ -22,12 +23,14 @@ impl DBM for UDBM {
         return udbm::zero(dim);
     }
 
-    fn relation(lhs: &UDBM, rhs: &UDBM) -> bool {
+    fn is_included_in(lhs: &UDBM, rhs: &UDBM) -> bool {
         return udbm::relation(lhs, rhs) > 0;
     }
+
+    fn is_satisfied(dbm: &Self, i: usize, j: usize, val: i32) {}
 }
 
-impl<T: std::default::Default + std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord> DBM
+impl<T: std::default::Default + std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord> DBM<T>
     for RDBM<T>
 {
     fn init(dim: usize) -> RDBM<T> {
@@ -40,9 +43,10 @@ impl<T: std::default::Default + std::ops::Neg<Output = T> + Zero + Bounded + Clo
         return rdbm::DBM::zero(clocks);
     }
 
-    fn relation(lhs: &RDBM<T>, rhs: &RDBM<T>) -> bool {
-        return rdbm::DBM::relation(lhs, rhs);
+    fn is_included_in(lhs: &RDBM<T>, rhs: &RDBM<T>) -> bool {
+        return rdbm::DBM::is_included_in(lhs, rhs);
     }
+    fn is_satisfied(dbm: &Self, i: usize, j: usize, val: T) {}
 }
 
 #[cfg(test)]
@@ -61,7 +65,7 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                 fn relation_test() {
                     let x = <$type>::init(3);
                     let y = <$type>::init(3);
-                    assert_eq!(<$type>::relation(&x, &y), <$type>::relation(&y,&x));
+                    assert_eq!(<$type>::is_included_in(&x, &y), <$type>::is_included_in(&y,&x));
                 }
             }
         )*
