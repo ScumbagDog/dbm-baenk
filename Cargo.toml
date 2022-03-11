@@ -6,5 +6,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rdbm = { git = "https://github.com/scumbagdog/rdbm" }
-udbm-rs =  { git = "https://github.com/ScumbagDog/udbm-rs" }
+rdbm = { git = "https://github.com/scumbagdog/rdbm", branch = "master" }
+udbm-rs =  { git = "https://github.com/ScumbagDog/udbm-rs", branch = "master" }
+num = "0.4"
