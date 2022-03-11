@@ -12,6 +12,16 @@ trait DBM<T> {
     fn zero(dim: usize) -> Self;
     fn is_included_in(rhs_dbm: &Self, lhs_dbm: &Self) -> bool;
     fn is_satisfied(dbm: &Self, i: usize, j: usize, val: T);
+
+    fn close(dbm: &mut Self);
+
+    fn future(dbm: &mut Self);
+    fn past(dbm: &mut Self);
+    fn restrict(dbm: &mut Self, i: usize, j: usize, constant: T);
+    fn free(dbm: &mut Self, clock: usize);
+    fn assign(dbm: &mut Self, clock: usize, constant: T);
+    fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize);
+    fn shift(dbm: &mut Self, clock: usize, shift_constant: T);
 }
 
 impl DBM<i32> for UDBM {
@@ -24,10 +34,19 @@ impl DBM<i32> for UDBM {
     }
 
     fn is_included_in(lhs: &UDBM, rhs: &UDBM) -> bool {
-        return udbm::relation(lhs, rhs) > 0;
+        return udbm::is_subset(lhs, rhs);
     }
 
     fn is_satisfied(dbm: &Self, i: usize, j: usize, val: i32) {}
+    fn close(dbm: &mut Self) {}
+
+    fn future(dbm: &mut Self) {}
+    fn past(dbm: &mut Self) {}
+    fn restrict(dbm: &mut Self, i: usize, j: usize, constant: i32) {}
+    fn free(dbm: &mut Self, clock: usize) {}
+    fn assign(dbm: &mut Self, clock: usize, constant: i32) {}
+    fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize) {}
+    fn shift(dbm: &mut Self, clock: usize, shift_constant: i32) {}
 }
 
 impl<T: std::default::Default + std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord> DBM<T>
@@ -47,6 +66,16 @@ impl<T: std::default::Default + std::ops::Neg<Output = T> + Zero + Bounded + Clo
         return rdbm::DBM::is_included_in(lhs, rhs);
     }
     fn is_satisfied(dbm: &Self, i: usize, j: usize, val: T) {}
+
+    fn close(dbm: &mut Self) {}
+
+    fn future(dbm: &mut Self) {}
+    fn past(dbm: &mut Self) {}
+    fn restrict(dbm: &mut Self, i: usize, j: usize, constant: T) {}
+    fn free(dbm: &mut Self, clock: usize) {}
+    fn assign(dbm: &mut Self, clock: usize, constant: T) {}
+    fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize) {}
+    fn shift(dbm: &mut Self, clock: usize, shift_constant: T) {}
 }
 
 #[cfg(test)]

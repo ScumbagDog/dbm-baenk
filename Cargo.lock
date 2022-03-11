@@ -386,7 +386,7 @@ dependencies = [
 [[package]]
 name = "udbm-rs"
 version = "0.1.0"
-source = "git+https://github.com/ScumbagDog/udbm-rs?branch=master#8a2b9b7920dcb25e4e80ca99735cb4dd2c8a5df3"
+source = "git+https://github.com/ScumbagDog/udbm-rs?branch=master#8d894a684af021d283536d367c1fca0bd6ab3681"
 dependencies = [
  "bindgen",
  "cc",
