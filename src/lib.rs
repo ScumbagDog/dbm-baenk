@@ -226,13 +226,23 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                 }
 
                 #[test]
-                fn test_assign() {
+                fn test_assign_zero() {
                     let dim: usize = 10;
                     let mut dbm:$type = DBM::zero(dim);
                     let dbm2:$type = DBM::zero(dim);
                     DBM::assign(&mut dbm, 1, 10); //set clock 1 to a value of 10
                     assert_eq!(DBM::is_included_in(&dbm, &dbm2), false); //as dbm has clock 1 set to 10, it will not include the zero dbm
                     assert_eq!(DBM::is_included_in(&dbm2, &dbm), false); //likewise, the zero dbm does not include dbm
+                }
+
+                #[test]
+                fn test_assign_init() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    let dbm2:$type = DBM::init(dim);
+                    DBM::assign(&mut dbm, 1, 10);
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm2), true); //because clock 1 has been set to a lower value than its counterpart in dbm2, it should be included in dbm2
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm), false); //but this also means that dbm doesn't include dbm2
                 }
 
                 #[test]
@@ -248,7 +258,14 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
 
                 #[test]
                 fn test_shift() {
-
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    let mut dbm2:$type = DBM::init(dim);
+                    DBM::assign(&mut dbm, 1, 10);
+                    DBM::assign(&mut dbm2, 1, 10); //at this point the dbms are still comparable
+                    DBM::shift(&mut dbm, 1, 10); //but now we shift clock 1 in dbm by 10 points, making neither include the other
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm), false);
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm2), false);
                 }
             }
         )*
