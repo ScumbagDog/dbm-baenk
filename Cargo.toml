@@ -9,3 +9,6 @@ edition = "2018"
 rdbm = { git = "https://github.com/scumbagdog/rdbm", branch = "master" }
 udbm-rs =  { git = "https://github.com/ScumbagDog/udbm-rs", branch = "master" }
 num = "0.4"
+
+[dev-dependencies]
+criterion = "0.3.5"

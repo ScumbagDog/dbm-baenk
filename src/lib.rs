@@ -73,7 +73,7 @@ impl DBM<i32> for UDBM {
     }
 }
 
-impl<T: std::default::Default + std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
+impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
     for RDBM<T>
 {
     fn init(dim: usize) -> RDBM<T> {
@@ -190,9 +190,8 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                 #[test]
                 fn test_zero() {
                     let dim: usize = 10;
-                    let mut dbm:$type = DBM::zero(dim);
-                    DBM::close(&mut dbm);
-                    assert_eq!(DBM::is_satisfied(&dbm, 1, 2, false, 3), false);
+                    let dbm:$type = DBM::zero(dim);
+                    assert_eq!(DBM::is_satisfied(&dbm, 1, 2, true, 0), false);
                 }
 
                 #[test]
@@ -212,6 +211,36 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                     let dbm2:$type = DBM::init(dim);
                     DBM::restrict(&mut dbm, 1, 0, false, 10);
                     assert_eq!(DBM::is_included_in(&dbm, &dbm2), true); //since dbm has been restricted, dbm2 should now include it, but not the other way around.
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm), false);
+                }
+
+                #[test]
+                fn test_restrict_with_satisfies() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    DBM::restrict(&mut dbm, 1, 0, false, 10);
+                    assert_eq!(DBM::is_satisfied(&dbm, 1, 0, false, 15), true);
+                    assert_eq!(DBM::is_satisfied(&dbm, 1, 0, false, 5), true);
+                    assert_eq!(DBM::is_satisfied(&dbm, 1, 0, false, -20), false); //this bound would be above the restrict, and as such, make the dbm inconsistent
+                }
+
+                #[test]
+                fn test_restrict_lower_bound() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    DBM::restrict(&mut dbm, 0, 1, false, -10); // This is a lower bound being set at 10, ie. clock 1 must have a greater value than 10
+                    assert_eq!(DBM::is_satisfied(&dbm, 1, 0, false, 15), true);
+                    assert_eq!(DBM::is_satisfied(&dbm, 1, 0, false, 5), false); // 5 is below lower bound, so not satisfied
+                }
+
+                #[test]
+                fn test_restrict_lower_closed() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    DBM::restrict(&mut dbm, 0, 1, false, -10);
+                    let dbm2 = dbm.clone();
+                    DBM::close(&mut dbm);
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm2), true); //restrict should preserve closedness, so both should be included in each other.
                     assert_eq!(DBM::is_included_in(&dbm2, &dbm), true);
                 }
 
@@ -226,13 +255,35 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                 }
 
                 #[test]
+                fn test_free_and_reassign() {
+                    let dim: usize = 10;
+                    let dbm_orig:$type = DBM::zero(dim);
+                    let mut dbm = dbm_orig.clone();
+                    DBM::free(&mut dbm, 1); //make clock 1 unrestricted
+                    DBM::assign(&mut dbm, 1, 0); //then set it to 0 again
+                    assert_eq!(DBM::is_included_in(&dbm_orig, &dbm), true); //In effect, the DBMs should now be equal again
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm_orig), true);
+                }
+
+                #[test]
+                fn test_copy() {
+                    let dim: usize = 10;
+                    let dbm_orig:$type = DBM::zero(dim);
+                    let mut dbm = dbm_orig.clone();
+                    DBM::copy(&mut dbm, 1, 2); //copy clock 2 to clock 1 (they have the same values)
+                    assert_eq!(DBM::is_included_in(&dbm_orig, &dbm), true); //Does nothing, dbms are equal
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm_orig), true);
+                }
+
+
+                #[test]
                 fn test_assign_zero() {
                     let dim: usize = 10;
                     let mut dbm:$type = DBM::zero(dim);
                     let dbm2:$type = DBM::zero(dim);
                     DBM::assign(&mut dbm, 1, 10); //set clock 1 to a value of 10
-                    assert_eq!(DBM::is_included_in(&dbm, &dbm2), false); //as dbm has clock 1 set to 10, it will not include the zero dbm
-                    assert_eq!(DBM::is_included_in(&dbm2, &dbm), false); //likewise, the zero dbm does not include dbm
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm), false); //as dbm has clock 1 set to 10, it will not include the zero dbm
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm2), false); //likewise, the zero dbm does not include dbm
                 }
 
                 #[test]
@@ -246,7 +297,7 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                 }
 
                 #[test]
-                fn test_copy() {
+                fn test_free_and_copy() {
                     let dim: usize = 10;
                     let mut dbm:$type = DBM::zero(dim);
                     let dbm2:$type = DBM::zero(dim);
@@ -266,6 +317,42 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                     DBM::shift(&mut dbm, 1, 10); //but now we shift clock 1 in dbm by 10 points, making neither include the other
                     assert_eq!(DBM::is_included_in(&dbm2, &dbm), false);
                     assert_eq!(DBM::is_included_in(&dbm, &dbm2), false);
+                }
+
+                #[test]
+                fn test_restrict_different_order() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    let mut dbm_reordered = dbm.clone();
+
+                    DBM::restrict(&mut dbm_reordered, 1, 2, false, 10);
+                    DBM::restrict(&mut dbm_reordered, 1, 0, false, 15);
+                    DBM::restrict(&mut dbm_reordered, 2, 3, false, 20);
+
+                    DBM::restrict(&mut dbm, 2, 3, false, 20);
+                    DBM::restrict(&mut dbm, 1, 2, false, 10);
+                    DBM::restrict(&mut dbm, 1, 0, false, 15);
+
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm_reordered), true); //order of restricts shouldn't matter for equality, dbms should be equal
+                    assert_eq!(DBM::is_included_in(&dbm_reordered, &dbm), true);
+                }
+
+                #[test]
+                fn test_redundant_free() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::zero(dim);
+                    let mut dbm_redundant = dbm.clone();
+
+                    DBM::free(&mut dbm, 1);
+
+                    DBM::free(&mut dbm_redundant, 1);
+                    DBM::free(&mut dbm_redundant, 1);
+                    DBM::free(&mut dbm_redundant, 1);
+                    DBM::free(&mut dbm_redundant, 1);
+                    DBM::free(&mut dbm_redundant, 1);
+
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm_redundant), true); //redundant frees shouldn't do anything, dbms should be equal
+                    assert_eq!(DBM::is_included_in(&dbm_redundant, &dbm), true);
                 }
             }
         )*
