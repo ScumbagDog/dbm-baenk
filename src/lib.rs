@@ -4,10 +4,10 @@ use udbm_rs::udbm;
 use num::Bounded;
 use num::Zero;
 
-use crate::rdbm::DBM as RDBM;
-use udbm::DBM as UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
+pub use crate::rdbm::DBM as RDBM;
+pub use udbm::DBM as UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
 
-trait DBM<T> {
+pub trait DBM<T> {
     fn init(dim: usize) -> Self;
     fn zero(dim: usize) -> Self;
     fn is_included_in(rhs_dbm: &Self, lhs_dbm: &Self) -> bool;
