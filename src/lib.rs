@@ -1,11 +1,11 @@
-use rdbm::rdbm;
-use udbm_rs::udbm;
-
-use num::Bounded;
-use num::Zero;
-
-pub use crate::rdbm::DBM as RDBM;
-pub use udbm::DBM as UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
+mod dbms {
+    pub mod rdbm_v1;
+    pub mod udbm;
+    pub mod rdbm;
+}
+pub use dbms::rdbm::RDBM as RDBM;
+pub use dbms::rdbm_v1::RDBM_V1 as RDBM_V1;
+pub use dbms::udbm::UDBM as UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
 
 pub trait DBM<T> {
     fn init(dim: usize) -> Self;
@@ -22,116 +22,6 @@ pub trait DBM<T> {
     fn assign(dbm: &mut Self, clock: usize, constant: T);
     fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize);
     fn shift(dbm: &mut Self, clock: usize, shift_constant: T);
-}
-
-impl DBM<i32> for UDBM {
-    fn init(dim: usize) -> UDBM {
-        return udbm::init(dim);
-    }
-
-    fn zero(dim: usize) -> UDBM {
-        return udbm::zero(dim);
-    }
-
-    fn is_included_in(lhs: &UDBM, rhs: &UDBM) -> bool {
-        return udbm::is_subset(lhs, rhs);
-    }
-
-    fn is_satisfied(dbm: &Self, i: usize, j: usize, bound_is_strict: bool, constant: i32) -> bool {
-        return udbm::satisfies(dbm, i, j, udbm::encode_bound(constant, bound_is_strict));
-    }
-    fn close(dbm: &mut Self) {
-        udbm::close(dbm);
-    }
-
-    fn future(dbm: &mut Self) {
-        udbm::up(dbm);
-    }
-
-    fn past(dbm: &mut Self) {
-        udbm::down(dbm);
-    }
-
-    fn restrict(dbm: &mut Self, i: usize, j: usize, bound_is_strict: bool, constant: i32) {
-        udbm::and(dbm, i, j, udbm::encode_bound(constant, bound_is_strict));
-    }
-
-    fn free(dbm: &mut Self, clock: usize) {
-        udbm::free(dbm, clock);
-    }
-
-    fn assign(dbm: &mut Self, clock: usize, constant: i32) {
-        udbm::assign(dbm, clock, constant);
-    }
-
-    fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize) {
-        udbm::copy(dbm, clock_to, clock_from);
-    }
-
-    fn shift(dbm: &mut Self, clock: usize, shift_constant: i32) {
-        udbm::shift(dbm, clock, shift_constant);
-    }
-}
-
-impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
-    for RDBM<T>
-{
-    fn init(dim: usize) -> RDBM<T> {
-        let clocks = (1..dim as u8).collect();
-        return rdbm::DBM::new(clocks);
-    }
-
-    fn zero(dim: usize) -> RDBM<T> {
-        let clocks = (1..dim as u8).collect();
-        return rdbm::DBM::zero(clocks);
-    }
-
-    fn is_included_in(lhs: &RDBM<T>, rhs: &RDBM<T>) -> bool {
-        return rdbm::DBM::is_included_in(lhs, rhs);
-    }
-    fn is_satisfied(dbm: &Self, i: usize, j: usize, is_bound_strict: bool, constant: T) -> bool {
-        let constraint_op = match is_bound_strict {
-            true => rdbm::ConstraintOp::LessThan,
-            false => rdbm::ConstraintOp::LessThanEqual,
-        };
-        return rdbm::DBM::satisfied(dbm, i as u8, j as u8, constraint_op, constant).unwrap();
-    }
-
-    fn close(dbm: &mut Self) {
-        rdbm::DBM::close(dbm);
-    }
-
-    fn future(dbm: &mut Self) {
-        rdbm::DBM::up(dbm).unwrap();
-    }
-
-    fn past(dbm: &mut Self) {
-        rdbm::DBM::down(dbm).unwrap();
-    }
-
-    fn restrict(dbm: &mut Self, i: usize, j: usize, bound_is_strict: bool, constant: T) {
-        let constraint_op = match bound_is_strict {
-            true => rdbm::ConstraintOp::LessThan,
-            false => rdbm::ConstraintOp::LessThanEqual,
-        };
-        rdbm::DBM::and(dbm, i as u8, j as u8, constraint_op, constant).unwrap();
-    }
-
-    fn free(dbm: &mut Self, clock: usize) {
-        rdbm::DBM::free(dbm, clock as u8).unwrap();
-    }
-
-    fn assign(dbm: &mut Self, clock: usize, constant: T) {
-        rdbm::DBM::reset(dbm, clock as u8, constant).unwrap();
-    }
-
-    fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize) {
-        rdbm::DBM::copy(dbm, clock_to as u8, clock_from as u8).unwrap();
-    }
-
-    fn shift(dbm: &mut Self, clock: usize, shift_constant: T) {
-        rdbm::DBM::shift(dbm, clock as u8, shift_constant).unwrap();
-    }
 }
 
 #[cfg(test)]
@@ -361,9 +251,10 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
 
 #[cfg(test)]
 mod tests {
-    use crate::{DBM, RDBM, UDBM};
+    use crate::{DBM, RDBM, RDBM_V1, UDBM};
     generate_tests! {
         udbm: UDBM,
         rdbm: RDBM<i8>,
+        rdbm_v1: RDBM_V1<i8>,
     }
 }

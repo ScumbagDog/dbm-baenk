@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
-use dbm_baenk::{DBM, RDBM, UDBM};
+use dbm_baenk::{DBM, RDBM, RDBM_V1, UDBM};
 
 macro_rules! generate_benchmarks {
     //Name should be a &str, i.e. a string "like this", type should be the type we're testing.
@@ -166,4 +166,6 @@ generate_benchmarks!{
     "udbm", UDBM,
     "rdbm_8bit", RDBM<i8>,
     "rdbm_32bit", RDBM<i32>,
+    "rdbm_v1_8bit", RDBM<i8>,
+    "rdbm_v1_32bit", RDBM<i32>,
 }

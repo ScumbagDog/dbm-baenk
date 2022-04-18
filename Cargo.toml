@@ -7,6 +7,7 @@ edition = "2018"
 
 [dependencies]
 rdbm = { git = "https://github.com/scumbagdog/rdbm", branch = "master" }
+rdbm_v1 = { git = "https://github.com/scumbagdog/rdbm", branch = "v1", package = "rdbm" }
 udbm-rs =  { git = "https://github.com/ScumbagDog/udbm-rs", branch = "master" }
 num = "0.4"
 
