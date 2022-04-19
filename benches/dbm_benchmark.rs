@@ -166,6 +166,6 @@ generate_benchmarks!{
     "udbm", UDBM,
     "rdbm_8bit", RDBM<i8>,
     "rdbm_32bit", RDBM<i32>,
-    "rdbm_v1_8bit", RDBM<i8>,
-    "rdbm_v1_32bit", RDBM<i32>,
+    "rdbm_v1_8bit", RDBM_V1<i8>,
+    "rdbm_v1_32bit", RDBM_V1<i32>,
 }
