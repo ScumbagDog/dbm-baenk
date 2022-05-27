@@ -1,22 +1,19 @@
-use rdbm::rdbm;
 pub use self::rdbm::DBM as RDBM;
 use crate::DBM;
+use rdbm::rdbm;
 
 use num::Bounded;
 use num::Zero;
-
 
 impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
     for RDBM<T>
 {
     fn init(dim: usize) -> RDBM<T> {
-        let clocks = (1..dim as u8).collect();
-        return rdbm::DBM::new(clocks);
+        return rdbm::DBM::new(dim);
     }
 
     fn zero(dim: usize) -> RDBM<T> {
-        let clocks = (1..dim as u8).collect();
-        return rdbm::DBM::zero(clocks);
+        return rdbm::DBM::zero(dim);
     }
 
     fn is_included_in(lhs: &RDBM<T>, rhs: &RDBM<T>) -> bool {
@@ -27,7 +24,7 @@ impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturati
             true => rdbm::ConstraintOp::LessThan,
             false => rdbm::ConstraintOp::LessThanEqual,
         };
-        return rdbm::DBM::satisfied(dbm, i as u8, j as u8, constraint_op, constant).unwrap();
+        return rdbm::DBM::satisfied(dbm, i, j, constraint_op, constant).unwrap();
     }
 
     fn close(dbm: &mut Self) {
@@ -47,22 +44,22 @@ impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturati
             true => rdbm::ConstraintOp::LessThan,
             false => rdbm::ConstraintOp::LessThanEqual,
         };
-        rdbm::DBM::and(dbm, i as u8, j as u8, constraint_op, constant).unwrap();
+        rdbm::DBM::and(dbm, i, j, constraint_op, constant).unwrap();
     }
 
     fn free(dbm: &mut Self, clock: usize) {
-        rdbm::DBM::free(dbm, clock as u8).unwrap();
+        rdbm::DBM::free(dbm, clock).unwrap();
     }
 
     fn assign(dbm: &mut Self, clock: usize, constant: T) {
-        rdbm::DBM::reset(dbm, clock as u8, constant).unwrap();
+        rdbm::DBM::reset(dbm, clock, constant).unwrap();
     }
 
     fn copy(dbm: &mut Self, clock_to: usize, clock_from: usize) {
-        rdbm::DBM::copy(dbm, clock_to as u8, clock_from as u8).unwrap();
+        rdbm::DBM::copy(dbm, clock_to, clock_from).unwrap();
     }
 
     fn shift(dbm: &mut Self, clock: usize, shift_constant: T) {
-        rdbm::DBM::shift(dbm, clock as u8, shift_constant).unwrap();
+        rdbm::DBM::shift(dbm, clock, shift_constant).unwrap();
     }
 }

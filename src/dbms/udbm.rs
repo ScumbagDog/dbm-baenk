@@ -1,6 +1,6 @@
-use udbm_rs::udbm;
 pub use self::udbm::DBM as UDBM;
 use crate::DBM;
+use udbm_rs::udbm;
 
 impl DBM<i32> for UDBM {
     fn init(dim: usize) -> UDBM {

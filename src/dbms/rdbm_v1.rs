@@ -1,9 +1,9 @@
-use rdbm_v1::rdbm;
 pub use self::rdbm::DBM as RDBM_V1;
 use crate::DBM;
+use rdbm_v1::rdbm;
 
-use num::Zero;
 use num::Bounded;
+use num::Zero;
 
 impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
     for RDBM_V1<T>

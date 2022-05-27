@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use dbm_baenk::{DBM, RDBM, RDBM_V1, UDBM};
 
 macro_rules! generate_benchmarks {
@@ -6,7 +6,7 @@ macro_rules! generate_benchmarks {
     ($($name:expr, $type:ty,)*) => {
         pub fn zero_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Zero");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, i| b.iter(|| {let _x:$type = DBM::zero(*i as usize);}));
                 )*
@@ -15,7 +15,7 @@ macro_rules! generate_benchmarks {
 
         pub fn init_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Init");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, i| b.iter(|| {let _x:$type = DBM::init(*i as usize);}));
                 )*
@@ -24,7 +24,7 @@ macro_rules! generate_benchmarks {
 
         pub fn inclusion_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Inclusion");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let x:$type = DBM::zero(*i as usize);
                     let y:$type = DBM::zero(*i as usize);
@@ -37,7 +37,7 @@ macro_rules! generate_benchmarks {
 
         pub fn satisfied_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Satisfied");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), &x, |b, x| b.iter(|| {
@@ -49,7 +49,7 @@ macro_rules! generate_benchmarks {
 
         pub fn close_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Close");
-            for i in [20u64].iter() {
+            for i in [20u64, 50u64, 75u64, 100u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -61,7 +61,7 @@ macro_rules! generate_benchmarks {
 
         pub fn future_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Future");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -73,7 +73,7 @@ macro_rules! generate_benchmarks {
 
         pub fn past_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Past");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -85,7 +85,7 @@ macro_rules! generate_benchmarks {
 
         pub fn restrict_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Restrict");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -97,7 +97,7 @@ macro_rules! generate_benchmarks {
 
         pub fn free_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Free");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -109,7 +109,7 @@ macro_rules! generate_benchmarks {
 
         pub fn assign_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Assign");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -121,7 +121,7 @@ macro_rules! generate_benchmarks {
 
         pub fn copy_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Copy");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -133,7 +133,7 @@ macro_rules! generate_benchmarks {
 
         pub fn shift_benchmark(c: &mut Criterion) {
             let mut group = c.benchmark_group("Shift");
-            for i in [20u64].iter() {
+            for i in [20u64, 100u64, 300u64, 600u64, 1000u64].iter() {
                 $(
                     let mut x:$type = DBM::init(*i as usize);
                     group.bench_with_input(BenchmarkId::new($name, i), i, |b, _i| b.iter(|| {
@@ -162,7 +162,7 @@ macro_rules! generate_benchmarks {
     }
 }
 
-generate_benchmarks!{
+generate_benchmarks! {
     "udbm", UDBM,
     "rdbm_8bit", RDBM<i8>,
     "rdbm_32bit", RDBM<i32>,

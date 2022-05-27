@@ -1,11 +1,11 @@
 mod dbms {
+    pub mod rdbm;
     pub mod rdbm_v1;
     pub mod udbm;
-    pub mod rdbm;
 }
-pub use dbms::rdbm::RDBM as RDBM;
-pub use dbms::rdbm_v1::RDBM_V1 as RDBM_V1;
-pub use dbms::udbm::UDBM as UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
+pub use dbms::rdbm::RDBM;
+pub use dbms::rdbm_v1::RDBM_V1;
+pub use dbms::udbm::UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
 
 pub trait DBM<T> {
     fn init(dim: usize) -> Self;
@@ -208,6 +208,32 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
                     assert_eq!(DBM::is_included_in(&dbm2, &dbm), false);
                     assert_eq!(DBM::is_included_in(&dbm, &dbm2), false);
                 }
+
+                #[test]
+                fn test_multiple_shift() {
+                    let dim: usize = 10;
+                    let mut dbm:$type = DBM::init(dim);
+                    DBM::assign(&mut dbm, 1, 10);
+                    let dbm2 = dbm.clone();
+                    DBM::shift(&mut dbm, 1, 10);
+                    let dbm3 = dbm.clone();
+                    DBM::shift(&mut dbm, 1, 10);
+                    let dbm4 = dbm.clone();
+                    DBM::shift(&mut dbm, 1, 10);
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm2), false);
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm3), false);
+                    assert_eq!(DBM::is_included_in(&dbm, &dbm4), false);
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm), false);
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm3), false);
+                    assert_eq!(DBM::is_included_in(&dbm2, &dbm4), false);
+                    assert_eq!(DBM::is_included_in(&dbm3, &dbm), false);
+                    assert_eq!(DBM::is_included_in(&dbm3, &dbm2), false);
+                    assert_eq!(DBM::is_included_in(&dbm3, &dbm4), false);
+                    assert_eq!(DBM::is_included_in(&dbm4, &dbm), false);
+                    assert_eq!(DBM::is_included_in(&dbm4, &dbm2), false);
+                    assert_eq!(DBM::is_included_in(&dbm4, &dbm3), false);
+                }
+
 
                 #[test]
                 fn test_restrict_different_order() {
