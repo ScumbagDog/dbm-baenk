@@ -1,10 +1,12 @@
 mod dbms {
     pub mod rdbm;
     pub mod rdbm_v1;
+    pub mod rdbm_bitvec;
     pub mod udbm;
 }
 pub use dbms::rdbm::RDBM;
 pub use dbms::rdbm_v1::RDBM_V1;
+pub use dbms::rdbm_bitvec::RDBM_BITVEC;
 pub use dbms::udbm::UDBM; //had some trouble with namespacing in the original repo, and decided to just leave it. Might fix later (probably not)
 
 pub trait DBM<T> {
@@ -277,10 +279,11 @@ macro_rules! generate_tests { //Eli Bendersky came up with this approach, and I 
 
 #[cfg(test)]
 mod tests {
-    use crate::{DBM, RDBM, RDBM_V1, UDBM};
+    use crate::{DBM, RDBM, RDBM_V1, RDBM_BITVEC, UDBM};
     generate_tests! {
         udbm: UDBM,
         rdbm: RDBM<i8>,
         rdbm_v1: RDBM_V1<i8>,
+        rdbm_bitvec: RDBM_BITVEC<i8>,
     }
 }

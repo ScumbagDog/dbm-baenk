@@ -1,12 +1,12 @@
-pub use self::rdbm::DBM as RDBM;
+pub use self::rdbm::DBM as RDBM_BITVEC;
 use crate::DBM;
-use rdbm::rdbm;
+use rdbm_bitvec::rdbm;
 
 use num::Bounded;
 use num::Zero;
 
 impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
-    for RDBM<T>
+    for RDBM_BITVEC<T>
 {
     fn init(dim: usize) -> Self {
         return rdbm::DBM::new(dim);

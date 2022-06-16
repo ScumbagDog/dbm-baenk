@@ -8,7 +8,9 @@ edition = "2018"
 [dependencies]
 rdbm = { git = "https://github.com/scumbagdog/rdbm", branch = "master" }
 rdbm_v1 = { git = "https://github.com/scumbagdog/rdbm", branch = "v1", package = "rdbm" }
+rdbm_bitvec = { git = "https://github.com/scumbagdog/rdbm", branch = "bitvec", package = "rdbm" }
 udbm-rs =  { git = "https://github.com/ScumbagDog/udbm-rs", branch = "master" }
+pardibaal = { git = "https://github.com/ScumbagDog/pardibaalrs", package = "pardibaalrs" }
 num = "0.4"
 
 [dev-dependencies]

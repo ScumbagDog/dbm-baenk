@@ -8,17 +8,17 @@ use num::Zero;
 impl<T: std::ops::Neg<Output = T> + Zero + Bounded + Clone + Ord + num::Saturating> DBM<T>
     for RDBM_V1<T>
 {
-    fn init(dim: usize) -> RDBM_V1<T> {
+    fn init(dim: usize) -> Self {
         let clocks = (1..dim as u8).collect();
         return rdbm::DBM::new(clocks);
     }
 
-    fn zero(dim: usize) -> RDBM_V1<T> {
+    fn zero(dim: usize) -> Self {
         let clocks = (1..dim as u8).collect();
         return rdbm::DBM::zero(clocks);
     }
 
-    fn is_included_in(lhs: &RDBM_V1<T>, rhs: &RDBM_V1<T>) -> bool {
+    fn is_included_in(lhs: &Self, rhs: &Self) -> bool {
         return rdbm::DBM::is_included_in(lhs, rhs);
     }
     fn is_satisfied(dbm: &Self, i: usize, j: usize, is_bound_strict: bool, constant: T) -> bool {
